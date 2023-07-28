@@ -2,7 +2,10 @@ package com.deliktas.internshipproject.service;
 
 
 import com.deliktas.internshipproject.client.RemoteServiceClient;
+import com.deliktas.internshipproject.model.Share;
 import com.deliktas.internshipproject.model.TransactionBan;
+import com.deliktas.internshipproject.model.TransactionBanDTO;
+import com.deliktas.internshipproject.repository.ShareRepository;
 import com.deliktas.internshipproject.repository.TransactionBanRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -11,9 +14,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 @Service
 public class TransactionBanService {
@@ -24,28 +25,45 @@ public class TransactionBanService {
     @Autowired
     private RemoteServiceClient remoteServiceClient;
 
+    @Autowired
+    private ShareRepository shareRepository;
+
     public boolean fetchDataAndSave() {
-
         try {
+            List<TransactionBanDTO> dataDTO = remoteServiceClient.getRemoteData();
+            List<TransactionBan> transactionBans = new ArrayList<>();
 
-/*
-        RestTemplate restTemplate = new RestTemplate();
-            restTemplate.getForObject(SERVER_API_URL,TransactionBan[].class);
-*/
+            if (dataDTO == null) {
+                throw new RestClientException("Error occurred while fetching data from the server.");
+            }
 
-        TransactionBan [] data = remoteServiceClient.getRemoteData();
+            for (TransactionBanDTO data : dataDTO) {
+                // Fetch or create the associated Share entity based on the pay field
+                Share share = shareRepository.findByPay(data.getPay());
+                if (share == null) {
+                    share = new Share(data.getPay(), data.getPayKodu());
+                    shareRepository.save(share);
+                }
 
-            if(data == null)
-                throw new RestClientException("Error occurred while fetching data from server ");
+                TransactionBan transactionBan = new TransactionBan();
+                transactionBan.setPay(share);
+                transactionBan.setUnvan(data.getUnvan());
+                transactionBan.setKurulKararNo(data.getKurulKararNo());
+                transactionBan.setMkkSicilNo(data.getMkkSicilNo());
+                transactionBan.setKurulKararTarihi(data.getKurulKararTarihi());
 
-            transactionBanRepository.saveAll(Arrays.asList(data));
+                transactionBans.add(transactionBan);
+            }
+
+            transactionBanRepository.saveAll(transactionBans);
             return true;
         } catch (RestClientException e) {
             System.out.println(e.getMessage());
         }
-        
+
         return false;
     }
+
 
     public ResponseEntity<List<TransactionBan>> getAllTransactionBans() {
         return new ResponseEntity<>(transactionBanRepository.findAll(), HttpStatus.OK);
@@ -70,7 +88,7 @@ public class TransactionBanService {
 
             return new ResponseEntity<>("SUCCESS",HttpStatus.OK);
         } catch (RestClientException e) {
-            e.printStackTrace();
+            System.out.println(e.getMessage());
         }
 
         return new ResponseEntity<>("FAILED",HttpStatus.BAD_REQUEST);
@@ -90,15 +108,32 @@ public class TransactionBanService {
             existingBan.setUnvan(ban.getUnvan());
             existingBan.setMkkSicilNo(ban.getMkkSicilNo());
             existingBan.setKurulKararNo(ban.getKurulKararNo());
-            existingBan.setPayKodu(ban.getPayKodu());
             existingBan.setKurulKararTarihi(ban.getKurulKararTarihi());
 
             transactionBanRepository.save(existingBan);
             return new ResponseEntity<>("SUCCESS",HttpStatus.OK);
         } catch (RestClientException e) {
-            e.printStackTrace();
+            System.out.println(e.getMessage());
         }
 
         return new ResponseEntity<>("FAILED",HttpStatus.BAD_REQUEST);
+    }
+
+    public ResponseEntity<List<TransactionBan>> getTransactionBanByVerdictNo(String verdictNo) {
+        try {
+            return new ResponseEntity<>(transactionBanRepository.findByVerdictNo(verdictNo), HttpStatus.OK);
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+        }
+        return new ResponseEntity<>(transactionBanRepository.findByVerdictNo(verdictNo), HttpStatus.BAD_REQUEST);
+    }
+
+    public ResponseEntity<List<TransactionBan>> getTransactionBanByName(String name) {
+        try {
+            return new ResponseEntity<>(transactionBanRepository.findByVerdictNo(name),HttpStatus.OK);
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+        }
+        return new ResponseEntity<>(transactionBanRepository.findByVerdictNo(name),HttpStatus.BAD_REQUEST);
     }
 }

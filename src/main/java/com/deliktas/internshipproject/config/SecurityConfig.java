@@ -10,6 +10,8 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
+import org.springframework.security.web.util.matcher.RequestMatcher;
 
 @Configuration
 @RequiredArgsConstructor
@@ -32,7 +34,9 @@ public class SecurityConfig {
                 .authorizeHttpRequests()
                 .requestMatchers("/api/v1/auth",
                                           "api/registry/all-bans",
-                                          "api/registry/save-to-database"
+                                          "api/registry/save-to-database",
+                                          "api/registry/verdict-by-name",
+                                          "api/registry/verdict-by-verdict-number"
                                 )
                 .permitAll()
                 .anyRequest()
@@ -48,6 +52,15 @@ public class SecurityConfig {
                 return http.build();
 
     }
+
+    public RequestMatcher verdictOrNameRequestMatcherByVerdict() {
+        return new AntPathRequestMatcher("/api/registry/verdict/{verdict-number}", "GET");
+    }
+
+    public RequestMatcher verdictOrNameRequestMatcherByName() {
+        return new AntPathRequestMatcher("/api/registry/verdict/{name}", "GET");
+    }
+
 
 
 }
