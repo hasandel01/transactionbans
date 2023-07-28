@@ -1,20 +1,15 @@
 package com.deliktas.internshipproject.model;
 
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import jakarta.persistence.*;
+import lombok.*;
 
 @Entity
 @Getter
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
+@Builder
 public class TransactionBan {
 
     @Id
@@ -25,9 +20,9 @@ public class TransactionBan {
 
     private String  mkkSicilNo;
 
-    private String pay;
-
-    private String payKodu;
+    @ManyToOne(fetch = FetchType.LAZY,optional=false)
+    @JoinColumn(name="share_id")
+    private Share pay;
 
     private String kurulKararTarihi;
 

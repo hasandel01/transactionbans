@@ -8,6 +8,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Collections;
 import java.util.List;
 
 @RestController
@@ -51,5 +52,26 @@ public class TransactionBanController {
         return transactionBanService.updateATransaction(id,ban);
     }
 
+    @GetMapping("/verdict-by-verdict-number")
+    public ResponseEntity<List<TransactionBan>> getTransactionBanByVerdictNumber(
+            @RequestParam(required = false) String verdictNumber) {
+        if (verdictNumber != null && !verdictNumber.isEmpty()) {
+            return transactionBanService.getTransactionBanByVerdictNo(verdictNumber);
+        } else {
+            // Handle the case where verdictNumber is not provided
+            return ResponseEntity.ok(Collections.emptyList());
+        }
+    }
+
+    @GetMapping("/verdict-by-name")
+    public ResponseEntity<List<TransactionBan>> getTransactionBanByName(
+            @RequestParam(required = false) String name) {
+        if (name != null && !name.isEmpty()) {
+            return transactionBanService.getTransactionBanByName(name);
+        } else {
+            // Handle the case where name is not provided
+            return ResponseEntity.ok(Collections.emptyList());
+        }
+    }
 
 }
