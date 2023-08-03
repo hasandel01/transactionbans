@@ -1,4 +1,4 @@
-package com.deliktas.internshipproject.service;
+package com.deliktas.internshipproject.auth.service;
 
 
 import io.jsonwebtoken.Claims;

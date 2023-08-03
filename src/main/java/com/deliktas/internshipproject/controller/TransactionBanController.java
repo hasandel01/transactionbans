@@ -1,7 +1,7 @@
 package com.deliktas.internshipproject.controller;
 
-
 import com.deliktas.internshipproject.model.TransactionBan;
+import com.deliktas.internshipproject.model.TransactionBanDTO;
 import com.deliktas.internshipproject.service.TransactionBanService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -34,6 +34,10 @@ public class TransactionBanController {
         return transactionBanService.getAllTransactionBans();
     }
 
+    @GetMapping("all-bans-dto")
+    public ResponseEntity<List<TransactionBanDTO>> getAllBansDTO() {
+        return transactionBanService.getAllTransactionBansDTO();
+    }
 
     @PostMapping("add")
     public ResponseEntity<String> getAllTransaction(@RequestBody TransactionBan ban) {
@@ -52,11 +56,11 @@ public class TransactionBanController {
         return transactionBanService.updateATransaction(id,ban);
     }
 
-    @GetMapping("/verdict-by-verdict-number")
-    public ResponseEntity<List<TransactionBan>> getTransactionBanByVerdictNumber(
-            @RequestParam(required = false) String verdictNumber) {
-        if (verdictNumber != null && !verdictNumber.isEmpty()) {
-            return transactionBanService.getTransactionBanByVerdictNo(verdictNumber);
+    @GetMapping("/verdict-by-registration-number")
+    public ResponseEntity<List<TransactionBan>> getTransactionBanByRegistrationNumber(
+            @RequestParam(required = false) String registrationNumber) {
+        if (registrationNumber != null && !registrationNumber.isEmpty()) {
+            return transactionBanService.getTransactionBanByRegNumber(registrationNumber);
         } else {
             // Handle the case where verdictNumber is not provided
             return ResponseEntity.ok(Collections.emptyList());

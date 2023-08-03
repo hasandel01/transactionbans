@@ -1,4 +1,4 @@
-package com.deliktas.internshipproject.auth.controller;
+package com.deliktas.internshipproject.auth.model;
 
 
 import lombok.*;

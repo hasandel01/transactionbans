@@ -1,13 +1,15 @@
-package com.deliktas.islemyasaklari;
+package com.deliktas.internshipproject;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
 @SpringBootTest
-class IslemyasaklariApplicationTests {
+class InternshipProjectApplicationTests {
 
 	@Test
-	void contextLoads() {
+	void APITest() {
+
+
 	}
 
 }

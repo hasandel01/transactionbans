@@ -5,14 +5,15 @@ import com.deliktas.internshipproject.client.RemoteServiceClient;
 import com.deliktas.internshipproject.model.Share;
 import com.deliktas.internshipproject.model.TransactionBan;
 import com.deliktas.internshipproject.model.TransactionBanDTO;
+import com.deliktas.internshipproject.model.VerdictDetails;
 import com.deliktas.internshipproject.repository.ShareRepository;
 import com.deliktas.internshipproject.repository.TransactionBanRepository;
+import com.deliktas.internshipproject.repository.VerdictDetailsRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClientException;
-import org.springframework.web.client.RestTemplate;
 
 import java.util.*;
 
@@ -28,10 +29,13 @@ public class TransactionBanService {
     @Autowired
     private ShareRepository shareRepository;
 
+    @Autowired
+    private VerdictDetailsRepository verdictDetailsRepository;
+
+
     public boolean fetchDataAndSave() {
         try {
             List<TransactionBanDTO> dataDTO = remoteServiceClient.getRemoteData();
-            List<TransactionBan> transactionBans = new ArrayList<>();
 
             if (dataDTO == null) {
                 throw new RestClientException("Error occurred while fetching data from the server.");
@@ -45,17 +49,24 @@ public class TransactionBanService {
                     shareRepository.save(share);
                 }
 
+                VerdictDetails verdictDetails = new VerdictDetails(data.getKurulKararTarihi(), data.getKurulKararNo());
+
                 TransactionBan transactionBan = new TransactionBan();
                 transactionBan.setPay(share);
+                transactionBan.addVerdict(verdictDetails);
                 transactionBan.setUnvan(data.getUnvan());
-                transactionBan.setKurulKararNo(data.getKurulKararNo());
                 transactionBan.setMkkSicilNo(data.getMkkSicilNo());
-                transactionBan.setKurulKararTarihi(data.getKurulKararTarihi());
 
-                transactionBans.add(transactionBan);
+                transactionBanRepository.save(transactionBan); // Save the TransactionBan first
+
+                verdictDetails.addBan(transactionBan); // Add TransactionBan to VerdictDetails
+                verdictDetailsRepository.save(verdictDetails); // Save VerdictDetails after adding TransactionBan
+
+                // Since you have cascading settings, there's no need to explicitly save VerdictDetails again here.
+                // The changes made in verdictDetails.addBan(transactionBan) will be automatically persisted.
+
             }
 
-            transactionBanRepository.saveAll(transactionBans);
             return true;
         } catch (RestClientException e) {
             System.out.println(e.getMessage());
@@ -63,6 +74,7 @@ public class TransactionBanService {
 
         return false;
     }
+
 
 
     public ResponseEntity<List<TransactionBan>> getAllTransactionBans() {
@@ -107,8 +119,6 @@ public class TransactionBanService {
             existingBan.setPay(ban.getPay());
             existingBan.setUnvan(ban.getUnvan());
             existingBan.setMkkSicilNo(ban.getMkkSicilNo());
-            existingBan.setKurulKararNo(ban.getKurulKararNo());
-            existingBan.setKurulKararTarihi(ban.getKurulKararTarihi());
 
             transactionBanRepository.save(existingBan);
             return new ResponseEntity<>("SUCCESS",HttpStatus.OK);
@@ -119,21 +129,45 @@ public class TransactionBanService {
         return new ResponseEntity<>("FAILED",HttpStatus.BAD_REQUEST);
     }
 
-    public ResponseEntity<List<TransactionBan>> getTransactionBanByVerdictNo(String verdictNo) {
-        try {
-            return new ResponseEntity<>(transactionBanRepository.findByVerdictNo(verdictNo), HttpStatus.OK);
-        } catch (Exception e) {
-            System.out.println(e.getMessage());
-        }
-        return new ResponseEntity<>(transactionBanRepository.findByVerdictNo(verdictNo), HttpStatus.BAD_REQUEST);
-    }
-
     public ResponseEntity<List<TransactionBan>> getTransactionBanByName(String name) {
         try {
-            return new ResponseEntity<>(transactionBanRepository.findByVerdictNo(name),HttpStatus.OK);
+            return new ResponseEntity<>(transactionBanRepository.findByName(name),HttpStatus.OK);
         } catch (Exception e) {
             System.out.println(e.getMessage());
         }
-        return new ResponseEntity<>(transactionBanRepository.findByVerdictNo(name),HttpStatus.BAD_REQUEST);
+        return new ResponseEntity<>(transactionBanRepository.findByName(name),HttpStatus.BAD_REQUEST);
+    }
+
+    public ResponseEntity<List<TransactionBan>> getTransactionBanByRegNumber(String registrationNumber) {
+        try {
+            return new ResponseEntity<>(transactionBanRepository.findByMkkSicilNo(registrationNumber),
+                                            HttpStatus.OK);
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+        }
+        return new ResponseEntity<>(transactionBanRepository.findByMkkSicilNo(registrationNumber),
+                                            HttpStatus.BAD_REQUEST);
+    }
+
+    public ResponseEntity<List<TransactionBanDTO>> getAllTransactionBansDTO() {
+
+            List<TransactionBan> list = transactionBanRepository.findAll();
+            List<TransactionBanDTO> allData = new ArrayList<>();
+            List<VerdictDetails> verdictDetails = verdictDetailsRepository.findAll();
+
+                for(int i = 0 ; i  < list.size() ; i++) {
+
+                    TransactionBanDTO newData = TransactionBanDTO.builder()
+                            .unvan(list.get(i).getUnvan())
+                            .mkkSicilNo(list.get(i).getMkkSicilNo())
+                            .pay(list.get(i).getPay().getPay())
+                            .payKodu(list.get(i).getPay().getPay())
+                            .kurulKararNo(verdictDetails.get(i).getKurulKararNo())
+                            .kurulKararTarihi(verdictDetails.get(i).getKurulKararTarihi())
+                            .build();
+                    allData.add(newData);
+                }
+
+        return new ResponseEntity<>(allData,HttpStatus.OK);
     }
 }
