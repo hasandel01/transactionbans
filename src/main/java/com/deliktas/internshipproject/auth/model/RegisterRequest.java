@@ -1,4 +1,4 @@
-package com.deliktas.internshipproject.auth.controller;
+package com.deliktas.internshipproject.auth.model;
 
 
 import lombok.Getter;
@@ -8,9 +8,14 @@ import lombok.Setter;
 @Getter
 @Setter
 @RequiredArgsConstructor
-public class AuthenticationRequest {
+public class RegisterRequest {
+
+    private String firstName;
+
+    private String lastName;
 
     private String email;
 
     private String password;
+
 }
