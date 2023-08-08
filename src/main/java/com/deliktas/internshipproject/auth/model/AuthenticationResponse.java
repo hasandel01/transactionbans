@@ -2,9 +2,7 @@ package com.deliktas.internshipproject.auth.model;
 
 
 import lombok.*;
-import org.springframework.stereotype.Component;
 
-@Component
 @Getter
 @Setter
 @NoArgsConstructor

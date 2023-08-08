@@ -37,4 +37,8 @@ public class VerdictDetails {
     public void addBan(TransactionBan transactionBan) {
         this.transactionBans.add(transactionBan);
     }
+
+    public void removeBan(TransactionBan existingBan) {
+        this.transactionBans.remove(existingBan);
+    }
 }

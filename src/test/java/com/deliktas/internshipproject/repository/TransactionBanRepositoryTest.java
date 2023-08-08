@@ -27,6 +27,7 @@ class TransactionBanRepositoryTest {
     @Autowired
     private TransactionBanRepository transactionBanRepository;
 
+
     private TransactionBan transactionBanPass;
 
     private TransactionBan transactionBanShouldNotPass;
@@ -43,7 +44,7 @@ class TransactionBanRepositoryTest {
 
         transactionBanPass = TransactionBan
                 .builder()
-                .mkkSicilNo("476*************")
+                .mkkSicilNo("326************")
                 .pay(share)
                 .unvan("SAMED KAYNACI (1)").build();
 
@@ -91,12 +92,9 @@ class TransactionBanRepositoryTest {
         Assertions.assertNotNull(list, "List should not be null.");
         Assertions.assertTrue(!list.isEmpty(),"List can not be empty.");
 
-            for (TransactionBan myBan : list)
-                System.out.println(myBan);
-
         boolean found = false;
         for (TransactionBan ban : list) {
-                if(ban.getMkkSicilNo().equals(transactionBanPass.getMkkSicilNo())) {
+                if(ban.getUnvan().equals(transactionBanPass.getUnvan())) {
                     found = true;
                     break;
                 }
@@ -135,8 +133,20 @@ class TransactionBanRepositoryTest {
         createTransactionBan2();
 
         List<TransactionBan> list = transactionBanRepository.findByMkkSicilNo(transactionBanShouldNotPass.getMkkSicilNo());
-        Assertions.assertTrue(list.isEmpty(), "List should be empty.");
 
+        Assertions.assertNotNull(list,"List should not be null.");
+        Assertions.assertTrue(!list.isEmpty(), "List should not be empty.");
+
+
+        boolean found = false;
+        for (TransactionBan ban : list) {
+            if(ban.getUnvan().equals(transactionBanShouldNotPass.getUnvan())) {
+                found = true;
+                break;
+            }
+        }
+
+        Assertions.assertTrue(found,"Element not found in the list.");
 
     }
 
@@ -146,7 +156,22 @@ class TransactionBanRepositoryTest {
         createTransactionBan2();
 
         List<TransactionBan> list = transactionBanRepository.findByMkkSicilNo(transactionBanShouldNotPass.getMkkSicilNo());
-        Assertions.assertTrue(list.isEmpty(), "List should  be empty.");
+
+        Assertions.assertNotNull(list,"List should not be null.");
+        Assertions.assertTrue(!list.isEmpty(), "List should not be empty.");
+
+
+        boolean found = false;
+        for (TransactionBan ban : list) {
+            if(ban.getUnvan().equals(transactionBanShouldNotPass.getUnvan())) {
+                found = true;
+                break;
+            }
+        }
+
+        Assertions.assertTrue(found,"Element not found in the list.");
+
+
     }
 
 

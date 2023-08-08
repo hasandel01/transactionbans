@@ -1,5 +1,6 @@
 package com.deliktas.internshipproject.controller;
 
+import com.deliktas.internshipproject.model.Share;
 import com.deliktas.internshipproject.model.TransactionBan;
 import com.deliktas.internshipproject.model.TransactionBanDTO;
 import com.deliktas.internshipproject.service.TransactionBanService;
@@ -40,7 +41,7 @@ public class TransactionBanController {
     }
 
     @PostMapping("add")
-    public ResponseEntity<String> getAllTransaction(@RequestBody TransactionBan ban) {
+    public ResponseEntity<String> getAllTransaction(@RequestBody TransactionBanDTO ban) {
         return transactionBanService.saveATransaction(ban);
     }
 
@@ -76,6 +77,19 @@ public class TransactionBanController {
             // Handle the case where name is not provided
             return ResponseEntity.ok(Collections.emptyList());
         }
+    }
+
+
+
+    @GetMapping("/all-shares")
+    public ResponseEntity<List<Share>> getAllShares() {
+        return transactionBanService.getAllShares();
+    }
+
+
+    @PostMapping("/update-transaction-bans")
+    public ResponseEntity<String> updateTransactionBan() {
+        return transactionBanService.updateTransactionBan();
     }
 
 }

@@ -34,6 +34,7 @@ public class TransactionBanService {
 
 
     public boolean fetchDataAndSave() {
+
         try {
             List<TransactionBanDTO> dataDTO = remoteServiceClient.getRemoteData();
 
@@ -81,9 +82,35 @@ public class TransactionBanService {
         return new ResponseEntity<>(transactionBanRepository.findAll(), HttpStatus.OK);
     }
 
-    public ResponseEntity<String > saveATransaction(TransactionBan transactionBan ) {
-        transactionBanRepository.save(transactionBan);
-        return new ResponseEntity<>("SUCCESS", HttpStatus.CREATED);
+    public ResponseEntity<String> saveATransaction(TransactionBanDTO transactionBanDTO ) {
+
+        try {
+
+            Share share = shareRepository.findByPay(transactionBanDTO.getPay());
+
+            if (share == null) {
+                share = new Share(transactionBanDTO.getPay(), transactionBanDTO.getPayKodu());
+                shareRepository.save(share);
+            }
+
+            VerdictDetails verdictDetails = new VerdictDetails(transactionBanDTO.getKurulKararTarihi(),
+                                                                transactionBanDTO.getKurulKararNo());
+
+            TransactionBan transactionBan = new TransactionBan();
+            transactionBan.setPay(share);
+            transactionBan.addVerdict(verdictDetails);
+            transactionBan.setUnvan(transactionBanDTO.getUnvan());
+            transactionBan.setMkkSicilNo(transactionBanDTO.getMkkSicilNo());
+
+            transactionBanRepository.save(transactionBan); // Save the TransactionBan first
+            verdictDetails.addBan(transactionBan); // Add TransactionBan to VerdictDetails
+            verdictDetailsRepository.save(verdictDetails); // Save VerdictDetails after adding TransactionBan
+
+            return new ResponseEntity<>("SUCCESS", HttpStatus.CREATED);
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+            return new ResponseEntity<>("FAILURE",HttpStatus.BAD_REQUEST);
+        }
     }
 
     public ResponseEntity<String> deleteATransaction(Integer id) {
@@ -98,12 +125,39 @@ public class TransactionBanService {
             TransactionBan existingBan = toBeDeleted.get();
             transactionBanRepository.delete(existingBan);
 
+            List<VerdictDetails> verdictDetails = verdictDetailsRepository.findAll();
+
+
+                for (VerdictDetails verdictDetails1 : verdictDetails) {
+                        for (TransactionBan ban : verdictDetails1.getTransactionBans()) {
+                                if(ban.equals(existingBan)) {
+                                    verdictDetailsRepository.delete(verdictDetails1);
+                                    verdictDetails1.removeBan(existingBan);
+                                    verdictDetailsRepository.save(verdictDetails1);
+                                }
+                        }
+                }
+
+            List<TransactionBan> allBans = transactionBanRepository.findAll();
+
+            boolean found = false;
+                for (TransactionBan ban : allBans) {
+                        if(ban.getPay().getPay().equals(existingBan.getPay().getPay())) {
+                            found = true;
+                            break;
+                        }
+                }
+
+           if(!found)
+               shareRepository.delete(existingBan.getPay());
+
             return new ResponseEntity<>("SUCCESS",HttpStatus.OK);
         } catch (RestClientException e) {
             System.out.println(e.getMessage());
+            return new ResponseEntity<>("FAILURE",HttpStatus.BAD_REQUEST);
+
         }
 
-        return new ResponseEntity<>("FAILED",HttpStatus.BAD_REQUEST);
     }
 
     public ResponseEntity<String> updateATransaction(Integer id,TransactionBan ban) {
@@ -169,5 +223,15 @@ public class TransactionBanService {
                 }
 
         return new ResponseEntity<>(allData,HttpStatus.OK);
+    }
+
+    public ResponseEntity<List<Share>> getAllShares() {
+        return new ResponseEntity<>(shareRepository.findAll(),HttpStatus.OK);
+    }
+
+
+    public ResponseEntity<String> updateTransactionBan() {
+
+        return new ResponseEntity<>("SUCCESS",HttpStatus.OK);
     }
 }
