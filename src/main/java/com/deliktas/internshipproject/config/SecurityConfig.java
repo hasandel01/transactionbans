@@ -36,7 +36,8 @@ public class SecurityConfig {
                 .requestMatchers("api/v1/auth/**",
                                  "api/registry/**",
                                  "api/shares/**",
-                                 "api/verdict-details/**"
+                                 "api/verdict-details/**",
+                                 "api/kafka-messages"
                         )
                 .permitAll()
                 .anyRequest()
