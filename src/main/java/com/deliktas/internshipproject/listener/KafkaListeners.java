@@ -4,15 +4,36 @@ import com.deliktas.internshipproject.model.TransactionBanDTO;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.kafka.annotation.KafkaListener;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Configuration
 public class KafkaListeners {
 
-    @KafkaListener(topics = "transaction-bans", groupId = "your-group-id")
+    private List<TransactionBanDTO> transactionBanDTOSList = new ArrayList<>();
+    private final Object lock = new Object();
+
+    @KafkaListener(topics = "transaction-bans", groupId = "groupId")
     public void receiveMessage(List<TransactionBanDTO> transactionBanDTO) {
-        // Process the received TransactionBanDTO object
+        synchronized (lock) {
+            transactionBanDTOSList.addAll(transactionBanDTO);
+            lock.notifyAll(); // Notify waiting threads
+        }
         System.out.println("Received: " + transactionBanDTO);
     }
 
+    public List<TransactionBanDTO> getMessage() {
+        synchronized (lock) {
+            while (transactionBanDTOSList.isEmpty()) {
+                try {
+                    lock.wait(); // Wait until data is available
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                    throw new RuntimeException("Interrupted while waiting for data.");
+                }
+            }
+            return new ArrayList<>(transactionBanDTOSList); // Return a copy of the list
+        }
+    }
 }
+

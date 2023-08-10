@@ -4,6 +4,7 @@ import com.deliktas.internshipproject.model.Share;
 import com.deliktas.internshipproject.model.TransactionBan;
 import com.deliktas.internshipproject.model.TransactionBanDTO;
 import com.deliktas.internshipproject.service.TransactionBanService;
+import com.deliktas.internshipproject.service.implementation.DataManagerImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -19,8 +20,13 @@ public class TransactionBanController {
     @Autowired
     private TransactionBanService transactionBanService;
 
+    @Autowired
+    private DataManagerImpl dataManager;
+
     @GetMapping("save-to-database")
     public ResponseEntity<String> fetchDataAndSave() {
+
+        dataManager.fetchDataAndSendToKafka();
 
         boolean IsCreated = transactionBanService.fetchDataAndSave();
 
