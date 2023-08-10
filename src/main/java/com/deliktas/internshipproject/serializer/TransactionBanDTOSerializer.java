@@ -14,7 +14,6 @@ import java.util.Map;
 @Component
 public class TransactionBanDTOSerializer implements Serializer<List<TransactionBanDTO>> {
 
-
     @Override
     public byte[] serialize(String topic, List<TransactionBanDTO> data) {
         byte[] result = null;

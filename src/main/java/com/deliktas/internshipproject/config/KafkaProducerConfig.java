@@ -1,6 +1,7 @@
 package com.deliktas.internshipproject.config;
 
 
+import com.deliktas.internshipproject.client.RemoteServiceClient;
 import com.deliktas.internshipproject.model.TransactionBanDTO;
 import com.deliktas.internshipproject.serializer.TransactionBanDTOSerializer;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -24,6 +25,7 @@ public class KafkaProducerConfig {
     @Value("${spring.kafka.bootstrap-servers}")
     private String bootstrapServer;
 
+
     @Bean
     public ProducerFactory<String, List<TransactionBanDTO>> producerFactory() {
         Map<String, Object> props = new HashMap<>();
@@ -39,6 +41,8 @@ public class KafkaProducerConfig {
                 kafkaTemplate(ProducerFactory<String, List<TransactionBanDTO>> producerFactory) {
         return new KafkaTemplate<>(producerFactory);
     }
+
+
 
 
 }

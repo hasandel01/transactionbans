@@ -89,6 +89,7 @@ public class AuthenticationService {
                 }
     }
 
+
     public ResponseEntity<UserDTO> getUserByEmail(String email) {
 
         User user = userRepository.findByEmail(email);

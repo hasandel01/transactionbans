@@ -1,6 +1,7 @@
 package com.deliktas.internshipproject.service.implementation;
 
 import com.deliktas.internshipproject.client.RemoteServiceClient;
+import com.deliktas.internshipproject.listener.KafkaListeners;
 import com.deliktas.internshipproject.mapper.EntityMapper;
 import com.deliktas.internshipproject.mapper.EntityMapperCustomImpl;
 import com.deliktas.internshipproject.model.*;
@@ -11,6 +12,8 @@ import com.deliktas.internshipproject.service.TransactionBanService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.kafka.annotation.KafkaListener;
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClientException;
 
@@ -23,9 +26,6 @@ public class TransactionBanServiceImplementation implements TransactionBanServic
     private TransactionBanRepository transactionBanRepository;
 
     @Autowired
-    private RemoteServiceClient remoteServiceClient;
-
-    @Autowired
     private ShareRepository shareRepository;
 
     @Autowired
@@ -33,15 +33,21 @@ public class TransactionBanServiceImplementation implements TransactionBanServic
 
     private final EntityMapper entityMapper;
 
+    @Autowired
+    private KafkaListeners kafkaListeners;
+
     public TransactionBanServiceImplementation(EntityMapperCustomImpl entityMapper) {
         this.entityMapper = entityMapper;
     }
+
+    private List<TransactionBanDTO> dataDTO;
 
     @Override
     public boolean fetchDataAndSave() {
 
         try {
-            List<TransactionBanDTO> dataDTO = remoteServiceClient.getRemoteData();
+
+          List<TransactionBanDTO> dataDTO = kafkaListeners.getMessage();
 
             if (dataDTO == null) {
                 throw new RestClientException("Error occurred while fetching data from the server.");
@@ -275,6 +281,5 @@ public class TransactionBanServiceImplementation implements TransactionBanServic
 
         return new ResponseEntity<>(allData,HttpStatus.OK);
     }
-
 
 }
