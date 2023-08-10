@@ -21,8 +21,9 @@ import org.springframework.security.web.util.matcher.RequestMatcher;
 @EnableWebSecurity
 public class SecurityConfig {
 
-    private JwtAuthenticationFilter jwtAuthenticationFilter;
-    private AuthenticationProvider authenticationProvider;
+    private final JwtAuthenticationFilter jwtAuthenticationFilter;
+
+    private final AuthenticationProvider authenticationProvider;
 
 
     @Bean
@@ -33,8 +34,10 @@ public class SecurityConfig {
                 .disable()
                 .authorizeHttpRequests()
                 .requestMatchers("api/v1/auth/**",
-                                 "api/registry/**"
-                                )
+                                 "api/registry/**",
+                                 "api/shares/**",
+                                 "api/verdict-details/**"
+                        )
                 .permitAll()
                 .anyRequest()
                 .authenticated()

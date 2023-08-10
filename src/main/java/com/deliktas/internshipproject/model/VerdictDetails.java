@@ -1,17 +1,20 @@
 package com.deliktas.internshipproject.model;
 
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
+import org.springframework.cglib.core.Local;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 @Entity
-@Data
+@Getter
+@Setter
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
@@ -21,7 +24,8 @@ public class VerdictDetails {
     @GeneratedValue(strategy = GenerationType.SEQUENCE)
     private Integer id;
 
-    private String kurulKararTarihi;
+    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
+    private LocalDateTime kurulKararTarihi;
 
     private String kurulKararNo;
 
@@ -29,7 +33,7 @@ public class VerdictDetails {
     @JsonIgnore
     private Set<TransactionBan> transactionBans = new HashSet<>();
 
-    public VerdictDetails(String kurulKararTarihi, String kurulKararNo) {
+    public VerdictDetails(LocalDateTime kurulKararTarihi, String kurulKararNo) {
         this.kurulKararTarihi = kurulKararTarihi;
         this.kurulKararNo = kurulKararNo;
     }
@@ -41,4 +45,6 @@ public class VerdictDetails {
     public void removeBan(TransactionBan existingBan) {
         this.transactionBans.remove(existingBan);
     }
+
+
 }
