@@ -11,11 +11,11 @@ import java.util.List;
 import java.util.Set;
 
 @Entity
-@Getter
-@Setter
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
+@Getter
+@Setter
 public class TransactionBan {
 
     @Id
@@ -42,8 +42,17 @@ public class TransactionBan {
     private Set<VerdictDetails> verdictDetails = new HashSet<>();
 
 
-    public void addVerdict(VerdictDetails verdictDetails) {
+    public VerdictDetails verdictDetailsSetToVerdictDetails() {
+        return verdictDetails.iterator().next();
+    }
+
+    public Set<VerdictDetails> verdictDetailsToVerdictDetailsSet(VerdictDetails verdictDetails) {
+
+        if (verdictDetails == null ) {
+            return null;
+        }
         this.verdictDetails.add(verdictDetails);
+        return this.verdictDetails;
     }
 
 }

@@ -30,11 +30,6 @@ public class TransactionBanController {
     }
 
 
-    @GetMapping("all-bans")
-    public ResponseEntity<List<TransactionBan>> getAllTransactionBans() {
-        return transactionBanService.getAllTransactionBans();
-    }
-
     @GetMapping("all-bans-dto")
     public ResponseEntity<List<TransactionBanDTO>> getAllBansDTO() {
         return transactionBanService.getAllTransactionBansDTO();
@@ -53,7 +48,7 @@ public class TransactionBanController {
 
 
     @PutMapping("/update/{id}")
-    public ResponseEntity<String> updateATransaction(@PathVariable("id") Integer id, @RequestBody TransactionBan ban) {
+    public ResponseEntity<String> updateATransaction(@PathVariable("id") Integer id, @RequestBody TransactionBanDTO ban) {
         return transactionBanService.updateATransaction(id,ban);
     }
 
@@ -79,17 +74,5 @@ public class TransactionBanController {
         }
     }
 
-
-
-    @GetMapping("/all-shares")
-    public ResponseEntity<List<Share>> getAllShares() {
-        return transactionBanService.getAllShares();
-    }
-
-
-    @PostMapping("/update-transaction-bans")
-    public ResponseEntity<String> updateTransactionBan() {
-        return transactionBanService.updateTransactionBan();
-    }
 
 }

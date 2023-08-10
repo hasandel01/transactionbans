@@ -13,6 +13,7 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.stereotype.Component;
 import org.springframework.test.annotation.DirtiesContext;
 
+import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -34,12 +35,12 @@ class TransactionBanRepositoryTest {
 
     private void createTransactionBan() {
 
-        Share share = Share.builder().pay("ASMAXTRAMERVCZ").payKodu("ASXT").build();
+        Share share = new Share("ASMAXTRAMERVCZ","ASXT");
 
         VerdictDetails verdictDetails = VerdictDetails
                 .builder()
                 .kurulKararNo("B-12")
-                .kurulKararTarihi("12313323T00:00:00")
+                .kurulKararTarihi(LocalDateTime.parse("12-03-2000T00:00:00"))
                 .build();
 
         transactionBanPass = TransactionBan
@@ -58,12 +59,12 @@ class TransactionBanRepositoryTest {
 
     private void createTransactionBan2() {
 
-        Share share = Share.builder().pay("ASMAXTRAMERVCZ").payKodu("ASXT").build();
+        Share share = new Share("ASMAXTRAMERVCZ","ASXT");
 
         VerdictDetails verdictDetails = VerdictDetails
                 .builder()
                 .kurulKararNo("B-12")
-                .kurulKararTarihi("12313323T00:00:00")
+                .kurulKararTarihi(LocalDateTime.parse("12-03-2000T00:00:00"))
                 .build();
 
         transactionBanShouldNotPass = TransactionBan
