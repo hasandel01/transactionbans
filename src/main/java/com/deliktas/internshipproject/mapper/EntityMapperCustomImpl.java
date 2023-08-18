@@ -43,7 +43,6 @@ public class EntityMapperCustomImpl implements EntityMapper {
         transactionBan.mkkSicilNo( transactionBanDTO.getMkkSicilNo() );
         transactionBan.pay(new Share(transactionBanDTO.getPay(),transactionBanDTO.getPayKodu()));
         transactionBan.verdictDetails(verdictDetailsSet);
-        System.out.println(verdictDetailsSet);
 
         return transactionBan.build();
     }

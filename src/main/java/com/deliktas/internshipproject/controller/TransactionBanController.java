@@ -15,6 +15,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("api/registry")
+@CrossOrigin(origins = "*")
 public class TransactionBanController {
 
     @Autowired

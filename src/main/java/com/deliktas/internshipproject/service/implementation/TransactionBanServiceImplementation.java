@@ -40,8 +40,6 @@ public class TransactionBanServiceImplementation implements TransactionBanServic
         this.entityMapper = entityMapper;
     }
 
-    private List<TransactionBanDTO> dataDTO;
-
     @Override
     public boolean fetchDataAndSave() {
 
@@ -271,7 +269,6 @@ public class TransactionBanServiceImplementation implements TransactionBanServic
 
         List<TransactionBan> list = transactionBanRepository.findAll();
         List<TransactionBanDTO> allData = new ArrayList<>();
-        List<VerdictDetails> verdictDetails = verdictDetailsRepository.findAll();
 
         for(int i = 0 ; i  < list.size() ; i++) {
             allData.add(entityMapper.transactionBanToTransactionBanDTO(list.get(i)));

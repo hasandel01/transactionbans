@@ -1,7 +1,6 @@
 package com.deliktas.internshipproject.client;
 
 
-import com.deliktas.internshipproject.model.TransactionBan;
 import com.deliktas.internshipproject.model.TransactionBanDTO;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.GetMapping;
