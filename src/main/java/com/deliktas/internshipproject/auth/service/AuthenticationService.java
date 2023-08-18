@@ -6,14 +6,21 @@ import com.deliktas.internshipproject.exceptions.UserAlreadyExistsException;
 import com.deliktas.internshipproject.mapper.EntityMapper;
 import com.deliktas.internshipproject.mapper.EntityMapperCustomImpl;
 import com.deliktas.internshipproject.mapper.UserMapper;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Service;
 
+import java.io.IOException;
 import java.util.Optional;
 
 @Service
@@ -55,10 +62,11 @@ public class AuthenticationService {
             userRepository.save(user);
 
             String jwtToken = jwtService.generateToken(user);
-            return AuthenticationResponse.builder().token(jwtToken).build();
+            String refreshToken = jwtService.generateRefreshToken(user);
+            return AuthenticationResponse.builder().accessToken(jwtToken).refreshToken(refreshToken).build();
         } catch (Exception e) {
             System.out.println(e.getMessage());
-            return AuthenticationResponse.builder().token("USER ALREADY EXISTS").build();
+            return AuthenticationResponse.builder().accessToken("USER ALREADY EXISTS").build();
         }
     }
 
@@ -70,9 +78,9 @@ public class AuthenticationService {
         ));
 
         var user = userRepository.findByEmail(authenticationRequest.getEmail());
-
+        var refreshToken = jwtService.generateRefreshToken(user);
         var jwtToken = jwtService.generateToken(user);
-        return AuthenticationResponse.builder().token(jwtToken).build();
+        return AuthenticationResponse.builder().accessToken(jwtToken).refreshToken(refreshToken).build();
 
     }
 
@@ -101,5 +109,35 @@ public class AuthenticationService {
             return new ResponseEntity<>(new UserDTO(), HttpStatus.BAD_REQUEST);
         }
 
+    }
+
+    public void refreshToken(HttpServletRequest request, HttpServletResponse response) throws IOException {
+
+        final String authHeader = request.getHeader("Authorization");
+        final String refreshToken;
+        final String userEmail;
+
+        if(authHeader == null ||!authHeader.startsWith("Bearer ")) {
+            return;
+        }
+
+
+        refreshToken = authHeader.substring(7);
+        userEmail = jwtService.extractUserName(refreshToken);
+
+        if(userEmail != null) {
+            var user = userRepository.findByEmail(userEmail);
+            if(jwtService.isTokenValid(refreshToken, user)) {
+                var accessToken =  jwtService.generateToken(user);
+                var authResponse = AuthenticationResponse
+                                    .builder()
+                                    .accessToken(accessToken)
+                                    .refreshToken(refreshToken)
+                                    .build();
+                new ObjectMapper().writeValue(response.getOutputStream(),authResponse);
+
+            }
+
+        }
     }
 }

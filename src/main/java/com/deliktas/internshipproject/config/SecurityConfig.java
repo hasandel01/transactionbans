@@ -34,10 +34,7 @@ public class SecurityConfig {
                 .disable()
                 .authorizeHttpRequests()
                 .requestMatchers("api/v1/auth/**",
-                                 "api/registry/**",
-                                 "api/shares/**",
-                                 "api/verdict-details/**",
-                                 "api/kafka-messages"
+                                    "api/registry/**"
                         )
                 .permitAll()
                 .anyRequest()

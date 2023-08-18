@@ -19,7 +19,6 @@ public class KafkaListeners {
             transactionBanDTOSList.addAll(transactionBanDTO);
             lock.notifyAll(); // Notify waiting threads
         }
-        System.out.println("Received: " + transactionBanDTO);
     }
 
     public List<TransactionBanDTO> getMessage() {
